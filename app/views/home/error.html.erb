@@ -1,0 +1,32 @@
+<div class="box warning">
+  <i class="ico-warning"></i>
+  There was an error onboarding your shop.
+</div>
+
+<div class="section">
+  <div class="section-content">
+    <div class="section-row">
+      <div class="section-cell">
+        <div class="cell-container">
+          <div class="cell-column">
+            <label>We're sorry, but...</label>
+            <p>
+              In order for Parcelify to work properly, it requires access to Shopify's <a href="https://help.shopify.com/api/reference/carrierservice" target="_blank">CarrierService API</a>. Unfortunately, access to this API is restricted to <a href="https://www.shopify.ca/pricing" target="_blank">advanced plans</a> only. Feel free to contact Shopify's support to inquire about
+              a potential upgrade and to learn more about the added value.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% content_for :shopify_app_javascript do %>
+  ShopifyApp.Bar.initialize({
+    buttons: {
+      primary: { label: "Retry", callback: function() {
+        window.location = "<%= retry_path %>"
+      }}
+    }
+  });
+<% end %>

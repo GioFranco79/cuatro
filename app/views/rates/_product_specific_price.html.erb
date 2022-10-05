@@ -1,0 +1,35 @@
+<div class="section-row" data-product_specific_price>
+  <div class="section-cell">
+    <a href="#" class="right" data-product_specific_price-destroy>
+      <span class="icon ico-clear-bluegray"></span>
+    </a>
+
+    <%= f.hidden_field :_destroy, value: local_assigns.fetch(:destroyed, false) %>
+
+    <%= f.label :field %>
+    <div class="select-wrapper">
+      <%=
+        f.select :field,
+          Matcher::PRODUCT_FIELDS.map { |field| [t(field, scope: 'matcher.fields'), field] },
+          { prompt: 'Field' },
+          { class: 'select' }
+      %>
+    </div>
+
+    <%= f.label :verb %>
+    <div class="select-wrapper">
+      <%=
+        f.select :verb,
+          Matcher::VERBS.map { |verb| [t(verb, scope: 'matcher.verbs'), verb] },
+          { prompt: 'Verb' },
+          { class: 'select' }
+      %>
+    </div>
+
+    <%= f.label :value %>
+    <%= f.text_field :value %>
+
+    <%= f.label :price, 'Price to add' %>
+    <%= f.text_field :price %>
+  </div>
+</div>

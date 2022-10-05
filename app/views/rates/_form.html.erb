@@ -1,0 +1,185 @@
+<%= form_for(@rate) do |f| %>
+  <div class="section">
+    <div class="section-summary">
+      <h1>Public Details</h1>
+      <p>Information shown in the cart regarding this shipping rate.</p>
+    </div>
+    <div class="section-content">
+      <div class="section-row">
+        <div class="section-cell">
+          <%= f.label :name %>
+          <%= f.text_field :name, placeholder: 'Bike delivery' %>
+          <%= f.label :description %>
+          <%= f.text_area :description, placeholder: 'I offer personal bike delivery in my neighborhood.' %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-summary">
+      <h1>Advanced Settings</h1>
+      <p>Optional settings for advanced users. Leave blank for default values.</p>
+    </div>
+    <div class="section-content">
+      <div class="section-row">
+        <div class="section-cell">
+          <%= f.label :code, 'Code (optional, must be unique across all rates)' %>
+          <%= f.text_field :code, placeholder: 'bike-delivery' %>
+          <%= f.label :notes %>
+          <%= f.text_area :notes, placeholder: 'Internal notes or description about this rate and what it is for.' %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-summary">
+      <h1>Price (<%= shop.currency %>)</h1>
+      <p>Prices are in sub-units, i.e. cents, pennies, pence, etc.</p>
+      <p>Total Price = Base price + (Price per gram * (grams - starting grams) + (Price per cent * (cents - starting cents) + extras per item</p>
+    </div>
+    <div class="section-content">
+      <div class="section-row">
+        <div class="section-cell">
+          <%= f.label :price, 'Base Price (in cents, pennies, pence, etc.)' %>
+          <%= f.text_field :price, placeholder: 0 %>
+        </div>
+      </div>
+      <div class="section-row">
+        <div class="section-cell">
+          <%= f.label :price_weight_modifier, 'Price per gram' %>
+          <%= f.text_field :price_weight_modifier, placeholder: 0 %>
+        </div>
+        <div class="section-cell">
+          <%= f.label :price_weight_modifier, 'Starting after X gram(s)...' %>
+          <%= f.text_field :price_weight_modifier_starter, placeholder: 0 %>
+        </div>
+      </div>
+      <div class="section-row">
+        <div class="section-cell">
+          <%= f.label :price_total_modifier, 'Price per cent' %>
+          <%= f.text_field :price_total_modifier, placeholder: 0 %>
+        </div>
+        <div class="section-cell">
+          <%= f.label :price_total_modifier, 'Starting after X cent(s)...' %>
+          <%= f.text_field :price_total_modifier_starter, placeholder: 0 %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-summary">
+      <h1>Limits</h1>
+      <p>Restrict availability of rates through price and weight.</p>
+    </div>
+    <div class="section-content">
+      <div class="section-row">
+        <div class="section-cell">
+          <%= f.label :min_grams %>
+          <%= f.text_field :min_grams %>
+        </div>
+        <div class="section-cell">
+          <%= f.label :max_grams %>
+          <%= f.text_field :max_grams %>
+        </div>
+      </div>
+      <div class="section-row">
+        <div class="section-cell">
+          <%= f.label :min_price %>
+          <%= f.text_field :min_price %>
+        </div>
+        <div class="section-cell">
+          <%= f.label :max_price %>
+          <%= f.text_field :max_price %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-summary">
+      <h1>Additional cost per item</h1>
+      <p>
+        Add per-product price to rates. They're added once per item matching criterias.
+      </p>
+      <p>
+        <button class="btn primary" data-product_specific_price-add>
+          Add an extra
+        </button>
+
+        <div style="display: none;" data-product_specific_price-template>
+          <%= f.fields_for :product_specific_prices, ProductSpecificPrice.new do |ff| %>
+            <%= render 'product_specific_price', f: ff, destroyed: true, disabled: true %>
+          <% end %>
+        </div>
+      <p>
+    </div>
+    <div class="section-content" data-product_specific_price-list>
+      <% @rate.product_specific_prices.each do |product_specific_price| %>
+        <%= f.fields_for :product_specific_prices, product_specific_price do |ff| %>
+          <%= render 'product_specific_price', f: ff %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-summary">
+      <h1>Filters</h1>
+      <p>
+        Filters decide whether or not a rate is available.
+        Countries and provinces use the <a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2">ISO 3166-1 alpha-2</a> standard code.
+        Filters are additive and compounded as ANDs. If you want ORs, use the | character to separate values.
+        <a href="https://christianblais.github.io/Parcelify/" target="_blank">See our help for more details</a>.
+      </p>
+      <p>
+        <button class="btn primary" data-condition-add>
+          Add a filter
+        </button>
+
+        <div style="display: none;" data-condition-template>
+          <%= f.fields_for :conditions, Condition.new do |ff| %>
+            <%= render 'condition', f: ff, destroyed: true, disabled: true %>
+          <% end %>
+        </div>
+      <p>
+    </div>
+    <div class="section-content" data-condition-list>
+      <% @rate.conditions.each do |condition| %>
+        <%= f.fields_for :conditions, condition do |ff| %>
+          <%= render 'condition', f: ff %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<% content_for :shopify_app_javascript do %>
+  ShopifyApp.Bar.initialize({
+    title: "<%= @rate.persisted? ? @rate.name : 'New' %>",
+    breadcrumb: { label: "Shipping rates", href: "<%= rates_path %>", target: 'app', loading: false },
+    buttons: {
+      primary: { label: "Save", callback: function() {
+        $('form').submit()
+      }},
+      secondary: [
+        {
+          label: "Help", callback: function() {
+            window.open("https://christianblais.github.io/Parcelify/", '_blank')
+          }
+        },
+        {
+          label: "Cancel", callback: function() {
+            window.location = "<%= rates_path %>"
+          }
+        }
+      ]
+    }
+  });
+
+  <% if @rate.errors.any? %>
+    ShopifyApp.flashError('Oops, something went wrong!');
+  <% end %>
+<% end %>

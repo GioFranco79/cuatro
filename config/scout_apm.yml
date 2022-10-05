@@ -1,0 +1,7 @@
+common: &defaults
+  name: parcelify
+  key: hi9QqP5UQd3XHWiOf46i
+  monitor: true
+
+production:
+  <<: *defaults
